@@ -13,7 +13,8 @@ class DeepwokenSpider(scrapy.Spider):
             "Referer": "https://deepwoken.fandom.com/",
         }
         for url in self.start_urls:
-            yield scrapy.Request(url, headers=headers, callback=self.parse, errback=self.errback)
+            # use Playwright for the initial page to bypass JS-based blocks
+            yield scrapy.Request(url, headers=headers, callback=self.parse, errback=self.errback, meta={"playwright": True})
 
     def parse(self, response):
         # follow internal /wiki/ links but skip common namespaces
@@ -21,12 +22,12 @@ class DeepwokenSpider(scrapy.Spider):
             # skip namespace links like Special:, Category:, File:, Help:, Talk:
             if any(href.startswith(f"/wiki/{ns}:") for ns in ("Special", "Category", "File", "Help", "Talk")):
                 continue
-            # include Referer and UA to mimic browser requests
+            # include Referer and UA to mimic browser requests; use Playwright for pages that may need rendering
             headers = {
                 "User-Agent": self.settings.get("USER_AGENT"),
                 "Referer": response.url,
             }
-            yield response.follow(href, callback=self.parse_article, errback=self.errback, headers=headers, dont_filter=True)
+            yield response.follow(href, callback=self.parse_article, errback=self.errback, headers=headers, dont_filter=True, meta={"playwright": True})
 
     def parse_article(self, response):
         try:

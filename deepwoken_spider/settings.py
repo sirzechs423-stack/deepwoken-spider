@@ -43,6 +43,22 @@ RETRY_HTTP_CODES = [500, 502, 503, 504, 522, 524, 408, 429, 403]
 # Logging
 LOG_LEVEL = "INFO"
 
-# NOTE: Splash integration is disabled by default because of compatibility issues
-# with some Scrapy versions. If you need JS rendering, consider migrating to
-# scrapy-playwright or pinning compatible scrapy/scrapy-splash versions.
+# Playwright settings - use a headless browser to bypass JS-based blocks
+DOWNLOAD_HANDLERS = {
+    "http": "scrapy_playwright.handler.ScrapyPlaywrightDownloadHandler",
+    "https": "scrapy_playwright.handler.ScrapyPlaywrightDownloadHandler",
+}
+
+TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
+
+DOWNLOADER_MIDDLEWARES = {
+    "scrapy_playwright.middleware.PlaywrightMiddleware": 800,
+}
+
+PLAYWRIGHT_BROWSER_TYPE = "chromium"
+PLAYWRIGHT_LAUNCH_OPTIONS = {"headless": True}
+PLAYWRIGHT_DEFAULT_NAVIGATION_TIMEOUT = 30000  # ms
+
+# NOTE: Splash is disabled due to compatibility issues with some Scrapy versions.
+# Playwright is used instead to render pages when necessary. Ensure Playwright
+# browsers are installed after installing requirements: `playwright install chromium`.
