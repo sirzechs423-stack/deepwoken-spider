@@ -7,14 +7,26 @@ class DeepwokenSpider(scrapy.Spider):
     allowed_domains = ["deepwoken.fandom.com"]
     start_urls = ["https://deepwoken.fandom.com/wiki/Main_Page"]
 
+    def start_requests(self):
+        headers = {
+            "User-Agent": self.settings.get("USER_AGENT"),
+            "Referer": "https://deepwoken.fandom.com/",
+        }
+        for url in self.start_urls:
+            yield scrapy.Request(url, headers=headers, callback=self.parse, errback=self.errback)
+
     def parse(self, response):
         # follow internal /wiki/ links but skip common namespaces
         for href in response.css("a[href^='/wiki/']::attr(href)").getall():
             # skip namespace links like Special:, Category:, File:, Help:, Talk:
             if any(href.startswith(f"/wiki/{ns}:") for ns in ("Special", "Category", "File", "Help", "Talk")):
                 continue
-            # use errback to capture network/parsing failures and log them
-            yield response.follow(href, callback=self.parse_article, errback=self.errback)
+            # include Referer and UA to mimic browser requests
+            headers = {
+                "User-Agent": self.settings.get("USER_AGENT"),
+                "Referer": response.url,
+            }
+            yield response.follow(href, callback=self.parse_article, errback=self.errback, headers=headers, dont_filter=True)
 
     def parse_article(self, response):
         try:
@@ -36,7 +48,7 @@ class DeepwokenSpider(scrapy.Spider):
         if failure.check(HttpError):
             # HttpError is raised for non-200 responses
             response = failure.value.response
-            self.logger.error('HttpError on %s', response.url)
+            self.logger.error('HttpError on %s (status=%s)', response.url, getattr(response, 'status', 'N/A'))
 
         elif failure.check(DNSLookupError):
             request = failure.request
