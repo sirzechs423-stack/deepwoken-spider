@@ -21,12 +21,15 @@ AUTOTHROTTLE_MAX_DELAY = 10
 # HTTP cache
 HTTPCACHE_ENABLED = True
 
-# If you use scrapy-splash, keep these. Remove if not using Splash.
-SPLASH_URL = "http://localhost:8050"
-DOWNLOADER_MIDDLEWARES = {
-    "scrapy_splash.SplashCookiesMiddleware": 723,
-    "scrapy_splash.SplashMiddleware": 725,
-    "scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware": 810,
-}
-DUPEFILTER_CLASS = "scrapy_splash.SplashAwareDupeFilter"
-HTTPCACHE_STORAGE = "scrapy_splash.SplashAwareFSCacheStorage"
+# NOTE: Splash integration removed by default because scrapy-splash is incompatible
+# with some Scrapy versions. If you need JS rendering, re-enable scrapy-splash and
+# add the middleware + dupefilter settings below and install a compatible scrapy-splash.
+# Example (only if using scrapy-splash):
+# SPLASH_URL = "http://localhost:8050"
+# DOWNLOADER_MIDDLEWARES = {
+#     "scrapy_splash.SplashCookiesMiddleware": 723,
+#     "scrapy_splash.SplashMiddleware": 725,
+#     "scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware": 810,
+# }
+# DUPEFILTER_CLASS = "scrapy_splash.SplashAwareDupeFilter"
+# HTTPCACHE_STORAGE = "scrapy_splash.SplashAwareFSCacheStorage"
