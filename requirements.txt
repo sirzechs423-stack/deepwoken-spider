@@ -1,0 +1,2 @@
+scrapy>=2.6.0
+scrapy-splash>=0.8.1
