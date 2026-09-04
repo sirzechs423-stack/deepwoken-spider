@@ -14,6 +14,9 @@ setup(
         "scrapy>=2.6.0",
         "scrapy-splash>=0.8.1",
     ],
+    entry_points={
+        'scrapy': ['settings = deepwoken_spider.settings'],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
